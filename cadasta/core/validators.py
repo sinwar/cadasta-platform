@@ -1,3 +1,5 @@
+import re
+from bs4 import BeautifulSoup
 from django.utils.translation import ugettext as _
 
 from jsonschema import Draft4Validator, FormatChecker
@@ -28,3 +30,17 @@ def validate_json(value, schema):
 
     if message_dict:
         raise JsonValidationError(message_dict)
+
+
+emojis = re.compile(u'.*[\U0001F300-\U0001F64F\U0001F680-\U0001F6FF'
+                    u'\u2600-\u26FF\u2700-\u27BF].*')
+macros = re.compile('^[' + re.escape('-=+@') + ']')
+
+
+def sanitize_string(value):
+    if not value or not isinstance(value, str):
+        return True
+
+    return (not bool(BeautifulSoup(value, 'html.parser').find()) and
+            not emojis.match(value) and
+            not macros.match(value))

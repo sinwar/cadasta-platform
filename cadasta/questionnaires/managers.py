@@ -11,6 +11,8 @@ from pyxform.builder import create_survey_element_from_dict
 from pyxform.errors import PyXFormError
 from pyxform.xls2json import parse_file_to_json
 from questionnaires.exceptions import InvalidXLSForm
+from core.messages import SANITIZE_ERROR
+from core.validators import sanitize_string
 
 ATTRIBUTE_GROUPS = settings.ATTRIBUTE_GROUPS
 
@@ -166,6 +168,16 @@ def fix_languages(node):
             fix_languages(child)
 
 
+def santize_form(form_json):
+    for key, value in form_json.items():
+        if isinstance(value, list):
+            for list_item in value:
+                santize_form(list_item)
+        else:
+            if not sanitize_string(value):
+                raise InvalidXLSForm([SANITIZE_ERROR])
+
+
 class QuestionnaireManager(models.Manager):
 
     def create_from_form(self, xls_form=None, original_file=None,
@@ -179,6 +191,9 @@ class QuestionnaireManager(models.Manager):
                     project=project
                 )
                 json = parse_file_to_json(instance.xls_form.file.name)
+
+                santize_form(json)
+
                 has_default_language = (
                     'default_language' in json and
                     json['default_language'] != 'default'

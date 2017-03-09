@@ -11,7 +11,53 @@ from jsonattrs.models import Attribute
 
 from . import factories
 from .. import models
-from ..managers import create_children, create_options
+from ..managers import create_children, create_options, santize_form
+
+
+class SanitizeFormTest(TestCase):
+    def test_santize_valid(self):
+        data = {
+            'name': 'Field',
+            'relevant': '${age}>10'
+        }
+        try:
+            santize_form(data)
+        except InvalidXLSForm:
+            assert False, "InvalidXLSForm raised unexpectedly"
+        else:
+            assert True
+
+    def test_santize_invalid(self):
+        data = {
+            'name': '=1+1',
+            'relevant': '${age}>10'
+        }
+        with pytest.raises(InvalidXLSForm):
+            santize_form(data)
+
+    def test_sanitize_valid_list(self):
+        data = {
+            'children': [
+                {'name': 'Field', 'relevant': '${age}>10'},
+                {'name': 'Field_2'}
+            ]
+        }
+        try:
+            santize_form(data)
+        except InvalidXLSForm:
+            assert False, "InvalidXLSForm raised unexpectedly"
+        else:
+            assert True
+
+    def test_sanitize_invalid_list(self):
+        data = {
+            'children': [
+                {'name': '<b>Field</b>', 'relevant': '${age}>10'},
+                {'name': 'Field_2'}
+            ]
+        }
+        with pytest.raises(InvalidXLSForm):
+            santize_form(data)
 
 
 class CreateChildrenTest(TestCase):
