@@ -3,14 +3,25 @@ var SimpleRouter = function(map){
   var rm = RouterMixins;
   routes = new CreateRoutes();
 
-  function router() {
+  function router(reload=false) {
     var hash_path = location.hash.slice(1) || '/';
-    if (hash_path === '/search') {
+    var coords = '';
+
+    if (hash_path.includes('/?coords=')) {
+      hash_path = hash_path.split('/?coords=')[0];
+      coords = '/?coords=';
+    }
+    
+    console.log(rm.settings.last_hash);
+    if (!reload && hash_path === rm.getLastHashPath()) {
+      return;
+    } else if (hash_path === '/search') {
       return;
     }
 
-    var async_url = '/async' + location.pathname;
 
+
+    var async_url = '/async' + location.pathname;
     if (hash_path !== '/') {
       async_url = async_url + hash_path.substr(1) + '/';
     }
@@ -62,6 +73,8 @@ var SimpleRouter = function(map){
         }
       }
     });
+
+    rm.setLastHashPath(hash_path + coords);
   }
 
   return {

@@ -24,7 +24,7 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
       rm.resetLocationStyle();
       rm.updateSidebar('overview');
-      if (options.projectExtent) {
+      if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
         map.fitBounds(options.projectExtent);
       }
   });
@@ -34,7 +34,7 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
       rm.resetLocationStyle();
       rm.updateSidebar('overview');
-      if (options.projectExtent) {
+      if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
         map.fitBounds(options.projectExtent);
       }
   });

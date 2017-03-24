@@ -13,7 +13,8 @@ var RouterMixins = {
       'detail': '#detail-form',
       'modal': '#modal-form',
       'location-wizard': '#location-wizard',
-    }
+    },
+    last_hash: null,
   },
 
   init: function() {
@@ -138,14 +139,18 @@ var RouterMixins = {
       if (bounds.isValid()){
         map.fitBounds(bounds);
       }
-
-      if (location.setStyle) {
-        location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
-      }
     }
   },
 
-  resetLocationStyle: function(feature) {
+  setLocationStyle: function() {
+    console.log('setLocationStyle eventHook called');
+    var location = state.current_location.bounds;
+    if (location.setStyle) {
+      location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
+    }
+  },
+
+  resetLocationStyle: function() {
     // before state.current_location is updated, the old state needs to be reset
     if (state.current_location.bounds) {
       if (state.current_location.bounds.setStyle) {
@@ -166,7 +171,11 @@ var RouterMixins = {
         this.resetLocationStyle();
 
         state.current_location.bounds = layers[i];
-        this.centerOnCurrentLocation();
+        if (!state.last_hash.includes('/?coords=')){
+          this.centerOnCurrentLocation();
+        }
+        this.setLocationStyle();
+
         map.closePopup();
         layers[i]._popup.setContent(this.activePopup(layers[i].feature));
       }
@@ -197,6 +206,14 @@ var RouterMixins = {
 
   getCurrentActiveTab: function() {
     this.activateTab(state.current_active_tab);
+  },
+
+  setLastHashPath: function(hash) {
+    state.last_hash = hash;
+  },
+
+  getLastHashPath: function() {
+    return state.last_hash;
   },
 
   /***************
@@ -382,9 +399,9 @@ var RouterMixins = {
 
           } else {
             if (window.location.hash === success_url) {
-              sr.router();
+              sr.router(true);
             } else {
-              window.location.hash = success_url;
+              window.location.replace(success_url);
               $('#overview-tab').removeClass('active');
               $($('#overview-tab').children()[0]).attr({'aria-expanded':"false"});
               $("#overview").removeClass('active');
@@ -393,11 +410,8 @@ var RouterMixins = {
               $($('#resource-tab').children()[0]).attr({'aria-expanded':"true"});
               $("#resource").addClass('active');
             }
-          } 
+          }
         }
-      }).done(function(response) {
-        // Is there a better way to tell if the form fails?
-        
       });
     });
   },
