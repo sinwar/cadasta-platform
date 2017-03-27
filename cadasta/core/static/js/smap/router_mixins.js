@@ -365,12 +365,12 @@ var RouterMixins = {
           return obj;
       }, {});
 
-      var geturl = $.ajax({
+      var posturl = $.ajax({
         method: "POST",
         url: formaction,
         data: data,
         success: function(response, status, xhr) {
-          form_error = geturl.getResponseHeader('Form-Error');
+          form_error = posturl.getResponseHeader('Form-Error');
           if (form_error) {
             form_type = state.el[form_type] || 'detail';
             var el = document.getElementById(form_type);
