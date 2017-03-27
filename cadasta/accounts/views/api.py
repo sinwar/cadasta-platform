@@ -10,7 +10,7 @@ from djoser import views as djoser_views
 from djoser import signals
 
 from .. import serializers
-from ..models import now_plus_48_hours
+from ..utils import send_email_update_notification
 from ..exceptions import EmailNotVerifiedError
 
 
@@ -19,17 +19,18 @@ class AccountUser(djoser_views.UserView):
 
     def perform_update(self, serializer):
         user = self.get_object()
+        old_email = user.email
         new_email = serializer.validated_data.get('email', user.email)
 
         if user.email != new_email:
-            updated = serializer.save(
-                email_verified=False,
-                verify_email_by=now_plus_48_hours()
-            )
+            updated = serializer.save(email=old_email)
+            updated.email = new_email
             try:
                 send_email_confirmation(self.request._request, updated)
             except MessageFailure:
                 pass
+            send_email_update_notification(old_email)
+
         else:
             serializer.save()
 
