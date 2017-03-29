@@ -360,6 +360,14 @@ var RouterMixins = {
     });
   },
 
+  // overviewHooks: function() {
+  //   if ($('#sidebar').hasClass('overview')) {
+  //     $('.overview').find('.overview').click(function(){
+  //       map.fitBounds(options.projectExtent);
+  //     });
+  //   }
+  // },
+
 
   /***************
   INTERCEPTING FORM SUBMISSIONS

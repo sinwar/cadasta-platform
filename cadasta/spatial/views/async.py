@@ -121,8 +121,10 @@ class LocationsAdd(core_mixins.LoginPermissionRequiredMixin,
         #     'cancel_add_location_url', None)
         # context['cancel_url'] = cancel_url or reverse(
         #             'organization:project-dashboard', kwargs=self.kwargs)
+        # context['cancel_url'] = reverse(
+        #             'organization:project-dashboard', kwargs=self.kwargs)
         context['cancel_url'] = reverse(
-                    'organization:project-dashboard', kwargs=self.kwargs)
+                    'organization:project-dashboard', kwargs=self.kwargs) + '#/overview'
         return context
 
     def get_perms_objects(self):

@@ -24,9 +24,6 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
       rm.resetLocationStyle();
       rm.updateSidebar('overview');
-      if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
-        map.fitBounds(options.projectExtent);
-      }
   });
 
   route('/', 'detail',
