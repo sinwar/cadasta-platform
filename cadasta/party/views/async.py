@@ -52,7 +52,7 @@ class PartyRelationshipEdit(core_mixins.LoginPermissionRequiredMixin,
             kwargs={
                 'organization': self.kwargs['organization'],
                 'project': self.kwargs['project']
-            }) + '#/records/relationship/' + self.kwargs['relationship'])
+            }) + '#/records/relationship/{}'.format(self.kwargs['relationship']))
         # return reverse('parties:relationship_detail', kwargs=self.kwargs)
 
     def get_form_kwargs(self):

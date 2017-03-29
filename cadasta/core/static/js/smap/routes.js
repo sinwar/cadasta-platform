@@ -44,10 +44,52 @@ var CreateRoutes = function(){
     },
     function(){
       rm.updateCurrentLocation();
+      rm.locationDetailHooks();
       // global function
       dataTableHook();
-      rm.getCurrentActiveTab();
+      // rm.getCurrentActiveTab();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl() + '/?tab=resources');
+  });
+
+  route('/records/location/overview', 'detail',
+    function() {
+      rm.displayDetailPanel();
+    },
+    function(){
+      rm.updateCurrentLocation();
+      rm.setCurrentActiveTab('overview');
+      rm.locationDetailHooks();
+      // global function
+      dataTableHook();
       rm.detachFormSubmission(rm.getCurrentLocationUrl());
+  });
+
+  route('/records/location/resources', 'detail',
+    function() {
+      rm.displayDetailPanel();
+    },
+    function(){
+      rm.updateCurrentLocation();
+      rm.setCurrentActiveTab('resources');
+      rm.locationDetailHooks();
+      // global function
+      dataTableHook();
+      // rm.getCurrentActiveTab();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl());
+  });
+
+  route('/records/location/relationships', 'detail',
+    function() {
+      rm.displayDetailPanel();
+    },
+    function(){
+      rm.updateCurrentLocation();
+      rm.setCurrentActiveTab('relationships');
+      rm.locationDetailHooks();
+      // global function
+      dataTableHook();
+      // rm.getCurrentActiveTab();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl() + '/?tab=resources');
   });
 
   route('/records/location/new', 'detail',
@@ -78,7 +120,7 @@ var CreateRoutes = function(){
     }, 
     function() {
       rm.setCurrentActiveTab('resources');
-      rm.formSubmission(this.el, rm.getCurrentLocationUrl());
+      rm.formSubmission(this.el, rm.getCurrentLocationUrl() + '/?tab=resources');
   });
 
   route('/records/location/resources/new', 'modal', 
@@ -88,7 +130,7 @@ var CreateRoutes = function(){
     function() {
       rm.setCurrentActiveTab('resources');
       rm.uploadResourceHooks();
-      rm.formSubmission(this.el, rm.getCurrentLocationUrl(), rm.uploadResourceHooks);
+      rm.formSubmission(this.el, rm.getCurrentLocationUrl()  + '/?tab=resources', rm.uploadResourceHooks);
   });
 
   route('/records/location/relationships/new', 'modal',
@@ -98,7 +140,7 @@ var CreateRoutes = function(){
     }, function() {
       rm.setCurrentActiveTab('relationships');
       rm.relationshipHooks();
-      rm.formSubmission(this.el, rm.getCurrentLocationUrl(), rm.relationshipHooks);
+      rm.formSubmission(this.el, rm.getCurrentLocationUrl()  + '/?tab=relationships', rm.relationshipHooks);
     });
 
 
@@ -128,7 +170,7 @@ var CreateRoutes = function(){
       rm.displayModal();
     },
     function(){
-      rm.formSubmission(this.el, rm.getCurrentLocationUrl());
+      rm.formSubmission(this.el, rm.getCurrentLocationUrl() + '/?tab=relationships');
   });
 
   route('/records/relationship/resources/add', 'modal',

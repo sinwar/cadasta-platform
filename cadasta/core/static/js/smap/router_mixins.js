@@ -4,7 +4,7 @@ var RouterMixins = {
   settings: {
     current_location: {url: null, bounds: null},
     current_relationship: {url: null},
-    current_active_tab: 'overview',
+    // current_active_tab: 'overview',
     el: {
       'detail': 'project-detail',
       'modal': 'additional-modals',
@@ -103,7 +103,7 @@ var RouterMixins = {
         state.current_location.url = url;
       }
 
-    } else if (state.current_location.url !== window.location.hash) {
+    } else if (!window.location.hash.includes(state.current_location.url)) {
       state.current_location.url = window.location.hash;
       this.setCurrentActiveTab('overview');
     }
@@ -199,13 +199,7 @@ var RouterMixins = {
   },
 
   setCurrentActiveTab: function(tab) {
-    if (state.current_active_tab !== tab) {
-      state.current_active_tab = tab;
-    }
-  },
-
-  getCurrentActiveTab: function() {
-    this.activateTab(state.current_active_tab);
+    this.activateTab(tab);
   },
 
   setLastHashPath: function(hash) {
@@ -360,14 +354,46 @@ var RouterMixins = {
     });
   },
 
-  // overviewHooks: function() {
-  //   if ($('#sidebar').hasClass('overview')) {
-  //     $('.overview').find('.overview').click(function(){
-  //       map.fitBounds(options.projectExtent);
-  //     });
-  //   }
-  // },
+  locationDetailHooks: function() {
+    $('#resources-tab').click(function() {
+      hash = window.location.hash;
+      arr = hash.split('/?coords=');
+      if (arr[0].includes('/?tab=resources')) {
+        return;
+      }
+      if (arr[0].includes('/?tab=')) {
+        arr[0] = arr[0].split('/?tab=')[0];
+      }
+      window.location.hash = arr[0] + '/?tab=resources/?coords=' + arr[1];
+      rm.setCurrentActiveTab('resources');
+    });
 
+    $('#overview-tab').click(function() {
+      hash = window.location.hash;
+      arr = hash.split('/?coords=');
+      if (arr[0].includes('/?tab=overview')) {
+        return;
+      }
+
+      if (arr[0].includes('/?tab=')) {
+        arr[0] = arr[0].split('/?tab=')[0];
+      }
+      window.location.hash = arr[0] + '/?tab=overview/?coords=' + arr[1];
+      rm.setCurrentActiveTab('overview');
+    });
+
+    $('#relationships-tab').click(function() {
+      hash = window.location.hash;
+      arr = hash.split('/?coords=');
+      if (arr[0].includes('/?tab=relationships')) {
+        return;
+      }
+      if (arr[0].includes('/?tab=')) {
+        arr[0] = arr[0].split('/?tab=')[0];
+      }
+      window.location.hash = arr[0] + '/?tab=relationships/?coords=' + arr[1];
+    });
+  },
 
   /***************
   INTERCEPTING FORM SUBMISSIONS
@@ -377,10 +403,6 @@ var RouterMixins = {
     var parent = this;
 
     $(form).submit(function(e){
-      // if form_type === form, then it was triggered by the detach form.
-      if (form_type === form) {
-        parent.setCurrentActiveTab('resources');
-      }
       e.preventDefault();
       var target = e.originalEvent || e.originalTarget;
       var formaction = $('.submit-btn', target.target ).attr('formAction');
@@ -410,13 +432,6 @@ var RouterMixins = {
               sr.router(true);
             } else {
               window.location.replace(success_url);
-              $('#overview-tab').removeClass('active');
-              $($('#overview-tab').children()[0]).attr({'aria-expanded':"false"});
-              $("#overview").removeClass('active');
-
-              $('#resource-tab').addClass('active');
-              $($('#resource-tab').children()[0]).attr({'aria-expanded':"true"});
-              $("#resource").addClass('active');
             }
           }
         }

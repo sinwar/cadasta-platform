@@ -194,7 +194,8 @@ class LocationResourceAdd(core_mixins.LoginPermissionRequiredMixin,
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         location = context['location']
-        context['cancel_url'] = '#/records/location/' + context['location'].id
+        context['cancel_url'] = '#/records/location/{}/?tab=resources'.format(
+            context['location'].id)
         context['upload_url'] = ("#/records/location/" +
                                  location.id + "/resources/new")
         context['submit_url'] = reverse(
@@ -228,7 +229,8 @@ class LocationResourceNew(core_mixins.LoginPermissionRequiredMixin,
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         location = context['location']
-        context['cancel_url'] = '#/records/location/' + context['location'].id
+        context['cancel_url'] = '#/records/location/{}/?tab=resources'.format(
+            context['location'].id)
         context['add_lib_url'] = ("#/records/location/" +
                                   location.id + "/resources/add")
 
@@ -272,12 +274,11 @@ class TenureRelationshipAdd(core_mixins.LoginPermissionRequiredMixin,
                 'project': location.project.slug,
                 'location': location.id
             })
+        context['cancel_url'] = '#/records/location/{}/?tab=relationships'.format(
+            self.kwargs['location'])
         return context
 
     def get_success_url(self):
-        return (reverse(
-            'organization:project-dashboard',
-            kwargs={
-                'organization': self.kwargs['organization'],
-                'project': self.kwargs['project']
-            }) + '#/records/location/' + self.kwargs['location'])
+        success_url = ('#/records/location/{}/?tab=relationships'.format(
+            self.kwargs['location']))
+        return success_url

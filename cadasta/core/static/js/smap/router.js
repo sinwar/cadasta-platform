@@ -6,12 +6,29 @@ var SimpleRouter = function(map){
   function router(reload=false) {
     var hash_path = location.hash.slice(1) || '/';
     var coords = '';
+    var tab = 'overview';
 
     if (hash_path.includes('/?coords=')) {
       hash_path = hash_path.split('/?coords=');
       hash_path = hash_path[0] || '/';
       coords = '/?coords=';
     }
+
+    if (hash_path.includes('/?tab=')) {
+      tab = hash_path.split('/?tab=')[1];
+    }
+
+
+    /***
+    
+    location = http://localhost:8000/organizations/cadasta/projects/london-2/#/records/location/5abiqthihbb3xyz3jkh3akra/?tab=resources/?coords=14/51.5066/-0.1802
+
+    hash_path = #/records/location/5abiqthihbb3xyz3jkh3akra/?tab=resources/?coords=14/51.5066/-0.1802
+    Two things we need to know:
+    - contains coords?
+    - which tab?
+
+    */
 
     if (!reload && hash_path === rm.getLastHashPath()) {
       return;
@@ -31,6 +48,7 @@ var SimpleRouter = function(map){
     if (!route) {
       var records = ['/records/location', '/records/relationship'];
       var actions = ['/edit', '/delete', '/resources/add', '/resources/new', '/relationships/new'];
+      var tabs = ['overview', 'resources', 'relationships'];
       var new_hash_path;
 
       for (var i in records) {
@@ -45,6 +63,11 @@ var SimpleRouter = function(map){
         }
       }
 
+      for (var k in tabs) {
+        if (hash_path.includes('/?tab=' + tabs[k])) {
+          new_hash_path = new_hash_path + '/' + tabs[k];
+        }
+      }
       route = routes[new_hash_path];
     }
 
@@ -53,6 +76,7 @@ var SimpleRouter = function(map){
       type: "GET",
       url: async_url,
       success: function (response, status, xhr) {
+        console.log('GET request success');
         permission_error = geturl.getResponseHeader('Permission-Error');
         anonymous_user = geturl.getResponseHeader('Anonymous-User');
 
