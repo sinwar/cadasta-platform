@@ -262,8 +262,6 @@ class ProjectAddExtents(forms.ModelForm):
 
 
 class ProjectAddDetails(SanitizeFieldsForm, SuperUserCheck, forms.Form):
-    ignore_sanitation = ('questionnaire', )
-
     class Media:
         js = ('js/file-upload.js', 'js/sanitize.js')
 
@@ -327,8 +325,6 @@ class ProjectAddDetails(SanitizeFieldsForm, SuperUserCheck, forms.Form):
 
 
 class ProjectEditDetails(SanitizeFieldsForm, forms.ModelForm):
-    ignore_sanitation = ('questionnaire', )
-
     urls = pg_forms.SimpleArrayField(
         forms.URLField(required=False),
         required=False,
@@ -522,7 +518,6 @@ class SelectImportForm(SanitizeFieldsForm, forms.Form):
     TYPE_CHOICES = (('xls', 'XLS'), ('shp', 'SHP'),
                     ('csv', 'CSV'))
     ENTITY_TYPE_CHOICES = (('SU', 'Locations'), ('PT', 'Parties'))
-    ignore_sanitation = ('mime_type', )
 
     class Media:
         js = ('js/sanitize.js')

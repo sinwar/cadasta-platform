@@ -184,9 +184,7 @@ class SanitizeFieldsForm:
         cleaned_data = super().clean()
         for name in self.fields:
             field = self.fields[name]
-            if (type(field) is not CharField or
-                    (hasattr(self, 'ignore_sanitation') and
-                     name in self.ignore_sanitation)):
+            if type(field) is not CharField:
                 continue
 
             value = cleaned_data.get(name)

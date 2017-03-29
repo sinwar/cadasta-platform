@@ -5,8 +5,6 @@ from .fields import ResourceField
 
 
 class ResourceForm(SanitizeFieldsForm, forms.ModelForm):
-    ignore_sanitation = ('file', )
-
     class Media:
         js = ('js/file-upload.js',  'js/sanitize.js', )
 
