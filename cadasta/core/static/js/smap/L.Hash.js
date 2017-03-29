@@ -109,13 +109,10 @@
         movingMap: false,
         update: function() {
             var hash = location.hash;
-            console.log(hash, this.lastHash);
             if (hash === this.lastHash) {
-                console.log('update cut short');
                 return;
             }
             var parsed = this.parseHash(hash);
-            console.log('parsed? ', parsed);
             if (parsed) {
                 this.movingMap = true;
 

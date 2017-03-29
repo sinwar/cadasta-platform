@@ -8,17 +8,16 @@ var SimpleRouter = function(map){
     var coords = '';
 
     if (hash_path.includes('/?coords=')) {
-      hash_path = hash_path.split('/?coords=')[0];
+      hash_path = hash_path.split('/?coords=');
+      hash_path = hash_path[0] || '/';
       coords = '/?coords=';
     }
-    
-    console.log(rm.settings.last_hash);
+
     if (!reload && hash_path === rm.getLastHashPath()) {
       return;
     } else if (hash_path === '/search') {
       return;
     }
-
 
 
     var async_url = '/async' + location.pathname;

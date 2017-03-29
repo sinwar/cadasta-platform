@@ -105,6 +105,7 @@ var RouterMixins = {
 
     } else if (state.current_location.url !== window.location.hash) {
       state.current_location.url = window.location.hash;
+      this.setCurrentActiveTab('overview');
     }
 
     this.updateCurrentLocationBounds();
@@ -143,7 +144,6 @@ var RouterMixins = {
   },
 
   setLocationStyle: function() {
-    console.log('setLocationStyle eventHook called');
     var location = state.current_location.bounds;
     if (location.setStyle) {
       location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
