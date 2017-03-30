@@ -152,6 +152,7 @@ var RouterMixins = {
 
   setCurrentLocationStyle: function() {
     var location = state.current_location.bounds;
+    console.log('location.style?', location.setStyle);
     if (location.setStyle) {
       location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
     }
@@ -172,9 +173,11 @@ var RouterMixins = {
   setCurrentLocationBounds: function() {
     var layers = state.geojsonlayer.geojsonLayer._layers;
     var url = state.current_location.url || window.location.hash;
+    var found = false;
 
     for (var i in layers) {
       if (url.includes(layers[i].feature.id)) {
+        found = true;
         this.resetCurrentLocationStyle();
 
         state.current_location.bounds = layers[i];
@@ -187,6 +190,14 @@ var RouterMixins = {
         map.closePopup();
         layers[i]._popup.setContent(this.activePopup(layers[i].feature));
       }
+    }
+
+    // if it's not loaded with the first set of tiles, try again
+    if (!found) {
+      var parent = this;
+      window.setTimeout(function() {
+        parent.setCurrentLocationBounds();
+      }, 400);
     }
   },
 
