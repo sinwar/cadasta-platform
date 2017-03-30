@@ -104,11 +104,17 @@ var RouterMixins = {
 
     } else if (!window_hash.includes(state.current_location.url)) {
       // catches both /?tab and /?coords
-      state.current_location.url = window_hash.substr(0, window_hash.indexOf('/?'));
+      state.current_location.url = window_hash;
+
+      if (window_hash.includes('/?tab=')) {
+        state.current_location.url = window_hash.substr(0, window_hash.indexOf('/?tab='));
+      } else if (window_hash.includes('/?coords=')) {
+        state.current_location.url = window_hash.substr(0, window_hash.indexOf('/?coords='));
+      }
+
       this.setCurrentActiveTab('overview');
     }
 
-    console.log('setCurrentLocationBounds()');
     this.setCurrentLocationBounds();
   },
 
@@ -127,7 +133,6 @@ var RouterMixins = {
   },
 
   centerOnCurrentLocation: function() {
-    console.log(state.current_location);
     if (state.current_location.bounds) {
       var bounds;
       var location = state.current_location.bounds;
@@ -365,13 +370,18 @@ var RouterMixins = {
 
   locationDetailHooks: function() {
     function formatHashTab(tab) {
-      window_hash = window.location.hash;
-      coords = window_hash.substr(window_hash.indexOf('/?coords='));
-      hash = window_hash.substr(0, window_hash.indexOf('/?coords='));
+      var hash = window.location.hash;
+      var coords = '';
+
+      if (hash.includes('/?coords=')) {
+        coords = hash.substr(hash.indexOf('/?coords='));
+        hash = hash.substr(0, hash.indexOf('/?coords='));
+      }
 
       if (hash.includes('/?tab=' + tab)) {
         return;
       }
+
       if (hash.includes('/?tab=')) {
         hash = hash.split('/?tab=')[0];
       }
