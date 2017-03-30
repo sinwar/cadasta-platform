@@ -2,9 +2,9 @@ var state;
 
 var RouterMixins = {
   settings: {
+    first_load: true,
     current_location: {url: null, bounds: null},
     current_relationship: {url: null},
-    // current_active_tab: 'overview',
     el: {
       'detail': 'project-detail',
       'modal': 'additional-modals',
@@ -14,14 +14,12 @@ var RouterMixins = {
       'modal': '#modal-form',
       'location-wizard': '#location-wizard',
     },
-    last_hash: null,
+    last_hash: '',
   },
 
   init: function() {
     state = this.settings;
-    // this.setCurrentLocation();
   },
-
 
   /***************
   DETAIL PANEL VS. MODAL
@@ -79,12 +77,12 @@ var RouterMixins = {
     }
   },
 
-  updateSidebar: function(tab) {
-    if (!$('#sidebar').hasClass(tab)) {
-      $('#sidebar').removeClass().addClass(tab);
+  // Only useful if multiple sidebar buttons lead to the map
+  updateSidebar: function(sidebar_button) {
+    if (!$('#sidebar').hasClass(sidebar_button)) {
+      $('#sidebar').removeClass().addClass(sidebar_button);
     }
   },
-
 
   /***************
   UPDATING THE STATE
@@ -97,21 +95,24 @@ var RouterMixins = {
     return state.el[el];
   },
 
-  updateCurrentLocation: function(url=null) {
-    if (url) {
-      if (!state.current_location.url) {
-        state.current_location.url = url;
-      }
+  setCurrentLocation: function(url=null) {
+    window_hash = window.location.hash;
 
-    } else if (!window.location.hash.includes(state.current_location.url)) {
-      state.current_location.url = window.location.hash;
+    // in relationship_detail, it pulls the current_location from the location link.
+    if (url && !state.current_location.url) {
+      state.current_location.url = url;
+
+    } else if (!window_hash.includes(state.current_location.url)) {
+      // catches both /?tab and /?coords
+      state.current_location.url = window_hash.substr(0, window_hash.indexOf('/?'));
       this.setCurrentActiveTab('overview');
     }
 
-    this.updateCurrentLocationBounds();
+    console.log('setCurrentLocationBounds()');
+    this.setCurrentLocationBounds();
   },
 
-  updateCurrentRelationshipUrl: function() {
+  setCurrentRelationshipUrl: function() {
     if (state.current_relationship.url !== window.location.hash) {
       state.current_relationship.url = window.location.hash;
     }
@@ -126,6 +127,7 @@ var RouterMixins = {
   },
 
   centerOnCurrentLocation: function() {
+    console.log(state.current_location);
     if (state.current_location.bounds) {
       var bounds;
       var location = state.current_location.bounds;
@@ -143,14 +145,14 @@ var RouterMixins = {
     }
   },
 
-  setLocationStyle: function() {
+  setCurrentLocationStyle: function() {
     var location = state.current_location.bounds;
     if (location.setStyle) {
       location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
     }
   },
 
-  resetLocationStyle: function() {
+  resetCurrentLocationStyle: function() {
     // before state.current_location is updated, the old state needs to be reset
     if (state.current_location.bounds) {
       if (state.current_location.bounds.setStyle) {
@@ -162,19 +164,20 @@ var RouterMixins = {
     }
   },
 
-  updateCurrentLocationBounds: function() {
+  setCurrentLocationBounds: function() {
     var layers = state.geojsonlayer.geojsonLayer._layers;
     var url = state.current_location.url || window.location.hash;
 
     for (var i in layers) {
       if (url.includes(layers[i].feature.id)) {
-        this.resetLocationStyle();
+        this.resetCurrentLocationStyle();
 
         state.current_location.bounds = layers[i];
-        if (!state.last_hash.includes('/?coords=')){
+        if (state.first_load) {
           this.centerOnCurrentLocation();
+          state.first_load = false;
         }
-        this.setLocationStyle();
+        this.setCurrentLocationStyle();
 
         map.closePopup();
         layers[i]._popup.setContent(this.activePopup(layers[i].feature));
@@ -208,6 +211,12 @@ var RouterMixins = {
 
   getLastHashPath: function() {
     return state.last_hash;
+  },
+
+  setFirstLoad: function(val) {
+    if (state.first_load != val) {
+      state.first_load = val;
+    }
   },
 
   /***************
@@ -400,7 +409,13 @@ var RouterMixins = {
   ****************/
   formSubmission: function(form_type, success_url, eventHook=null){
     var form = state.forms[form_type] || form_type;
+    var detach = false;
     var parent = this;
+
+    // if form_type is a complete form, it came from detachFormSubmission
+    if (form === form_type) {
+      detach = true;
+    }
 
     $(form).submit(function(e){
       e.preventDefault();
@@ -428,7 +443,7 @@ var RouterMixins = {
             }
 
           } else {
-            if (window.location.hash === success_url) {
+            if (detach) {
               sr.router(true);
             } else {
               window.location.replace(success_url);

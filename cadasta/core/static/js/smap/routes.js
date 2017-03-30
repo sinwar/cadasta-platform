@@ -22,15 +22,16 @@ var CreateRoutes = function(){
   route('/overview', 'detail',
     function() {
       rm.displayDetailPanel();
-      rm.resetLocationStyle();
+      rm.resetCurrentLocationStyle();
       rm.updateSidebar('overview');
   });
 
   route('/', 'detail',
     function() {
       rm.displayDetailPanel();
-      rm.resetLocationStyle();
+      rm.resetCurrentLocationStyle();
       rm.updateSidebar('overview');
+      
       if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
         map.fitBounds(options.projectExtent);
       }
@@ -43,12 +44,12 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
     },
     function(){
-      rm.updateCurrentLocation();
+      rm.setCurrentLocation();
       rm.locationDetailHooks();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl());
+
       // global function
       dataTableHook();
-      // rm.getCurrentActiveTab();
-      rm.detachFormSubmission(rm.getCurrentLocationUrl() + '/?tab=resources');
   });
 
   route('/records/location/overview', 'detail',
@@ -56,12 +57,13 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
     },
     function(){
-      rm.updateCurrentLocation();
+      rm.setCurrentLocation();
       rm.setCurrentActiveTab('overview');
       rm.locationDetailHooks();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl());
+
       // global function
       dataTableHook();
-      rm.detachFormSubmission(rm.getCurrentLocationUrl());
   });
 
   route('/records/location/resources', 'detail',
@@ -69,13 +71,13 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
     },
     function(){
-      rm.updateCurrentLocation();
+      rm.setCurrentLocation();
       rm.setCurrentActiveTab('resources');
       rm.locationDetailHooks();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl());
+
       // global function
       dataTableHook();
-      // rm.getCurrentActiveTab();
-      rm.detachFormSubmission(rm.getCurrentLocationUrl());
   });
 
   route('/records/location/relationships', 'detail',
@@ -83,13 +85,13 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
     },
     function(){
-      rm.updateCurrentLocation();
+      rm.setCurrentLocation();
       rm.setCurrentActiveTab('relationships');
       rm.locationDetailHooks();
+      rm.detachFormSubmission(rm.getCurrentLocationUrl());
+
       // global function
       dataTableHook();
-      // rm.getCurrentActiveTab();
-      rm.detachFormSubmission(rm.getCurrentLocationUrl() + '/?tab=resources');
   });
 
   route('/records/location/new', 'detail',
@@ -100,7 +102,6 @@ var CreateRoutes = function(){
   route('/records/location/edit', 'detail', 
     function() {
       rm.displayEditDetailPanel();
-      rm.centerOnCurrentLocation();
     },
     function(){
       rm.formSubmission('location-wizard', rm.getCurrentLocationUrl());
@@ -150,12 +151,13 @@ var CreateRoutes = function(){
       rm.displayDetailPanel();
     },
     function() {
+      rm.setCurrentActiveTab('relationships');
+      rm.setCurrentLocation($("#current-location").attr('href'));
+      rm.setCurrentRelationshipUrl();
+      rm.detachFormSubmission(rm.getCurrentRelationshipUrl());
+
       // global function
       dataTableHook();
-      rm.setCurrentActiveTab('relationships');
-      rm.updateCurrentLocation($("#current-location").attr('href'));
-      rm.updateCurrentRelationshipUrl();
-      rm.detachFormSubmission(rm.getCurrentRelationshipUrl());
   });
 
   route('/records/relationship/edit', 'detail',
