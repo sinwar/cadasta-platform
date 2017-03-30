@@ -16,7 +16,6 @@ var SimpleRouter = function(map){
 
     if (hash_path.includes('/?tab=')) {
       tab = hash_path.substr(hash_path.indexOf('/?tab=') + 6);
-      hash_path = hash_path.substr(0, hash_path.indexOf('/?tab='));
     }
 
     // Prevents router from reloading every time the coords changes.

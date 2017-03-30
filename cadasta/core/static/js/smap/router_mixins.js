@@ -364,43 +364,31 @@ var RouterMixins = {
   },
 
   locationDetailHooks: function() {
-    $('#resources-tab').click(function() {
-      hash = window.location.hash;
-      arr = hash.split('/?coords=');
-      if (arr[0].includes('/?tab=resources')) {
+    function formatHashTab(tab) {
+      window_hash = window.location.hash;
+      coords = window_hash.substr(window_hash.indexOf('/?coords='));
+      hash = window_hash.substr(0, window_hash.indexOf('/?coords='));
+
+      if (hash.includes('/?tab=' + tab)) {
         return;
       }
-      if (arr[0].includes('/?tab=')) {
-        arr[0] = arr[0].split('/?tab=')[0];
+      if (hash.includes('/?tab=')) {
+        hash = hash.split('/?tab=')[0];
       }
-      window.location.hash = arr[0] + '/?tab=resources/?coords=' + arr[1];
+      window.location.hash = hash + '/?tab=' + tab + coords;
       rm.setCurrentActiveTab('resources');
+    }
+
+    $('#resources-tab').click(function() {
+      formatHashTab('resources');
     });
 
     $('#overview-tab').click(function() {
-      hash = window.location.hash;
-      arr = hash.split('/?coords=');
-      if (arr[0].includes('/?tab=overview')) {
-        return;
-      }
-
-      if (arr[0].includes('/?tab=')) {
-        arr[0] = arr[0].split('/?tab=')[0];
-      }
-      window.location.hash = arr[0] + '/?tab=overview/?coords=' + arr[1];
-      rm.setCurrentActiveTab('overview');
+      formatHashTab('overview');
     });
 
     $('#relationships-tab').click(function() {
-      hash = window.location.hash;
-      arr = hash.split('/?coords=');
-      if (arr[0].includes('/?tab=relationships')) {
-        return;
-      }
-      if (arr[0].includes('/?tab=')) {
-        arr[0] = arr[0].split('/?tab=')[0];
-      }
-      window.location.hash = arr[0] + '/?tab=relationships/?coords=' + arr[1];
+      formatHashTab('relationships');
     });
   },
 
