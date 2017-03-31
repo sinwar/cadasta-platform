@@ -101,6 +101,7 @@ var CreateRoutes = function(){
 
   route('/records/location/edit', 'detail', 
     function() {
+      rm.setCurrentLocation();
       rm.displayEditDetailPanel();
     },
     function(){
@@ -109,6 +110,7 @@ var CreateRoutes = function(){
 
   route('/records/location/delete', 'modal',
     function() {
+      rm.setCurrentLocation();
       rm.displayModal();
     },
     function(){
@@ -164,6 +166,7 @@ var CreateRoutes = function(){
     function() {
       rm.displayEditDetailPanel();
     }, function(){
+      rm.setCurrentLocation($("#current-location").attr('href'));
       rm.formSubmission(this.el, rm.getCurrentRelationshipUrl());
   });
 

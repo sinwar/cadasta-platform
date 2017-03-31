@@ -3,9 +3,6 @@
 {% load staticfiles %}
 {% load leaflet_tags %}
 
-{% block page_title %}{% trans "Edit location" %} | {% endblock %}
-{% block body-class %} map{% endblock %}
-
 {% block extra_head %}
 {% leaflet_css plugins="draw,forms,groupedlayercontrol,markercluster" %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geocoder-mapzen/1.4.0/leaflet-geocoder-mapzen.css">
