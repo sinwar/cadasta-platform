@@ -99,9 +99,10 @@ var RouterMixins = {
     window_hash = window.location.hash;
 
     // in relationship_detail, it pulls the current_location from the location link.
-    if (url && !state.current_location.url) {
-      state.current_location.url = url;
-
+    if (url) {
+      if (!state.current_location.url) {
+        state.current_location.url = url;
+      }
     } else if (!window_hash.includes(state.current_location.url)) {
       // catches both /?tab and /?coords
       state.current_location.url = window_hash;
@@ -152,7 +153,6 @@ var RouterMixins = {
 
   setCurrentLocationStyle: function() {
     var location = state.current_location.bounds;
-    console.log('location.style?', location.setStyle);
     if (location.setStyle) {
       location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
     }
@@ -170,17 +170,19 @@ var RouterMixins = {
     }
   },
 
-  setCurrentLocationBounds: function() {
+  setCurrentLocationBounds: function(count=0) {
     var layers = state.geojsonlayer.geojsonLayer._layers;
     var url = state.current_location.url || window.location.hash;
     var found = false;
 
+    console.log('layers?', layers);
     for (var i in layers) {
       if (url.includes(layers[i].feature.id)) {
         found = true;
         this.resetCurrentLocationStyle();
 
         state.current_location.bounds = layers[i];
+        console.log('first load?', state.first_load);
         if (state.first_load) {
           this.centerOnCurrentLocation();
           state.first_load = false;
@@ -193,11 +195,17 @@ var RouterMixins = {
     }
 
     // if it's not loaded with the first set of tiles, try again
-    if (!found) {
+    // It's not perfect, still doesn't look for things that aren't loaded in the first pass
+    // There needs to be a way to guarentee that all objects are loaded the first go around (but doesn't that defeat the purpose of vector tiles?)
+
+    // could we include the coords in the spatial_unit model so I can use them as context in the view?
+    // No because the views are stripped of javascript....
+    if (!found && count <= 5) {
       var parent = this;
+      count += 1;
       window.setTimeout(function() {
-        parent.setCurrentLocationBounds();
-      }, 400);
+        parent.setCurrentLocationBounds(count);
+      }, 600);
     }
   },
 
@@ -397,7 +405,7 @@ var RouterMixins = {
         hash = hash.split('/?tab=')[0];
       }
       window.location.hash = hash + '/?tab=' + tab + coords;
-      rm.setCurrentActiveTab('resources');
+      rm.setCurrentActiveTab(tab);
     }
 
     $('#resources-tab').click(function() {

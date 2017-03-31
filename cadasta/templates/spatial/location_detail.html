@@ -55,9 +55,12 @@
           <tbody>
             {% for rel in relationships %}
             {% with '#/records/relationship/'|add:rel.id as relationship_url %}
-            <tr class="linked" onclick="window.document.location='{{ relationship_url }}';">
-              <td><a href="{{ relationship_url }}" {{ rel.type_labels|safe }}>{{ rel.tenure_type_label }}</a></td>
-              <td><a href="{% url 'parties:detail' object.organization.slug object.slug rel.party.id %}">{{ rel.party.name }}</a></td>
+            <tr class="linked">
+              <td onclick="window.document.location='{{ relationship_url }}';">
+                <a href="{{ relationship_url }}" {{ rel.type_labels|safe }}>{{ rel.tenure_type_label }}</a>
+              </td>
+              <td onclick="window.document.location='{% url 'parties:detail' object.organization.slug object.slug rel.party.id %}';">
+                <a href="{% url 'parties:detail' object.organization.slug object.slug rel.party.id %}">{{ rel.party.name }}</a></td>
             </tr>
             {% endwith %}
             {% endfor %}

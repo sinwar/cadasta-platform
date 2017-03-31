@@ -172,7 +172,7 @@ var CreateRoutes = function(){
       rm.displayModal();
     },
     function(){
-      rm.formSubmission(this.el, rm.getCurrentLocationUrl() + '/?tab=relationships');
+      rm.formSubmission(this.el, rm.getCurrentLocationUrl());
   });
 
   route('/records/relationship/resources/add', 'modal',
