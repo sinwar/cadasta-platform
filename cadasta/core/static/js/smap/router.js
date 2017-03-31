@@ -10,7 +10,6 @@ var SimpleRouter = function(map){
 
     if (hash_path.includes('/?coords=')) {
       hash_path = hash_path.substr(0, hash_path.indexOf('/?coords=')) || '/';
-      console.log('Includes coords');
       rm.setFirstLoad(false);
     }
 
@@ -26,7 +25,6 @@ var SimpleRouter = function(map){
     }
 
     if (!hash_path.includes('/records/')) {
-      console.log('Doesnt include records');
       rm.setFirstLoad(false);
     }
 
@@ -69,6 +67,10 @@ var SimpleRouter = function(map){
       success: function (response, status, xhr) {
         permission_error = geturl.getResponseHeader('Permission-Error');
         anonymous_user = geturl.getResponseHeader('Anonymous-User');
+        coords = geturl.getResponseHeader('Coordinates');
+        if (coords) {
+          rm.setCurrentLocationCoords(coords);
+        }
 
         if (permission_error) {
           window.location.hash = "/overview";

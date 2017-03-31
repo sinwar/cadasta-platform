@@ -86,6 +86,14 @@ class LocationDetail(core_mixins.LoginPermissionRequiredMixin,
     permission_denied_message = error_messages.SPATIAL_VIEW
     attributes_field = 'attributes'
 
+    def render_to_response(self, context, **kwargs):
+        render = super().render_to_response(context, **kwargs)
+        location_extent = context['location'].geometry.extent
+        lng, lat, lng2, lat2 = location_extent
+        render['Coordinates'] = lat, lng, lat2, lng2
+
+        return render
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['relationships'] = self.object.tenurerelationship_set.all(

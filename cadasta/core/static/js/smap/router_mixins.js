@@ -3,7 +3,7 @@ var state;
 var RouterMixins = {
   settings: {
     first_load: true,
-    current_location: {url: null, bounds: null},
+    current_location: {url: null, feature: null},
     current_relationship: {url: null},
     el: {
       'detail': 'project-detail',
@@ -15,6 +15,7 @@ var RouterMixins = {
       'location-wizard': '#location-wizard',
     },
     last_hash: '',
+    coords: null,
   },
 
   init: function() {
@@ -98,6 +99,17 @@ var RouterMixins = {
   setCurrentLocation: function(url=null) {
     window_hash = window.location.hash;
 
+    this.setCurrentLocationUrl(url);
+    this.setCurrentLocationFeature();
+  },
+
+  setCurrentRelationshipUrl: function() {
+    if (state.current_relationship.url !== window.location.hash) {
+      state.current_relationship.url = window.location.hash;
+    }
+  },
+
+  setCurrentLocationUrl: function(url) {
     // in relationship_detail, it pulls the current_location from the location link.
     if (url) {
       if (!state.current_location.url) {
@@ -115,14 +127,6 @@ var RouterMixins = {
 
       this.setCurrentActiveTab('overview');
     }
-
-    this.setCurrentLocationBounds();
-  },
-
-  setCurrentRelationshipUrl: function() {
-    if (state.current_relationship.url !== window.location.hash) {
-      state.current_relationship.url = window.location.hash;
-    }
   },
 
   getCurrentLocationUrl: function() {
@@ -133,26 +137,36 @@ var RouterMixins = {
     return state.current_relationship.url;
   },
 
-  centerOnCurrentLocation: function() {
-    if (state.current_location.bounds) {
-      var bounds;
-      var location = state.current_location.bounds;
-      if (typeof(location.getBounds) === 'function'){
-        bounds = location.getBounds();
-      } else {
-        // If the spatial unit is a marker
-        var latLngs = [location.getLatLng()];
-        bounds = L.latLngBounds(latLngs);
-      }
+  // centerOnCurrentLocation: function() {
+    
+  //   // if (state.current_location.bounds) {
+  //   //   var bounds;
+  //   //   var location = state.current_location.bounds;
+  //   //   if (typeof(location.getBounds) === 'function'){
+  //   //     console.log(location);
+  //   //     bounds = location.getBounds();
+  //   //     console.log(bounds);
+  //   //   } else {
+  //   //     // If the spatial unit is a marker
+  //   //     var latLngs = [location.getLatLng()];
+  //   //     bounds = L.latLngBounds(latLngs);
+  //   //   }
 
-      if (bounds.isValid()){
-        map.fitBounds(bounds);
-      }
+  //     // if (bounds.isValid()){
+  //     //   map.fitBounds(bounds);
+  //     // }
+  //   // }
+  // },
+
+  setCurrentLocationCoords: function(coords) {
+    if (!state.coords) {
+      coords = coords.replace('(', '').replace(')', '').split(',');
+      state.coords = [[coords[0], coords[1]], [coords[2], coords[3]]];
     }
   },
 
   setCurrentLocationStyle: function() {
-    var location = state.current_location.bounds;
+    var location = state.current_location.feature;
     if (location.setStyle) {
       location.setStyle({color: '#edaa00', fillColor: '#edaa00', weight: 3});
     }
@@ -160,52 +174,36 @@ var RouterMixins = {
 
   resetCurrentLocationStyle: function() {
     // before state.current_location is updated, the old state needs to be reset
-    if (state.current_location.bounds) {
-      if (state.current_location.bounds.setStyle) {
-        state.current_location.bounds.setStyle({color: '#3388ff', fillColor: '#3388ff', weight: 2});
+    if (state.current_location.feature) {
+      if (state.current_location.feature.setStyle) {
+        state.current_location.feature.setStyle({color: '#3388ff', fillColor: '#3388ff', weight: 2});
       }
 
-      feature = state.current_location.bounds.feature;
-      state.current_location.bounds._popup.setContent(this.nonActivePopup(feature));
+      feature = state.current_location.feature.feature;
+      state.current_location.feature._popup.setContent(this.nonActivePopup(feature));
     }
   },
 
-  setCurrentLocationBounds: function(count=0) {
+  setCurrentLocationFeature: function() {
     var layers = state.geojsonlayer.geojsonLayer._layers;
     var url = state.current_location.url || window.location.hash;
     var found = false;
 
-    console.log('layers?', layers);
+    if (state.first_load) {
+      map.fitBounds(state.coords);
+      state.first_load = false;
+    }
+
     for (var i in layers) {
       if (url.includes(layers[i].feature.id)) {
         found = true;
         this.resetCurrentLocationStyle();
-
-        state.current_location.bounds = layers[i];
-        console.log('first load?', state.first_load);
-        if (state.first_load) {
-          this.centerOnCurrentLocation();
-          state.first_load = false;
-        }
+        state.current_location.feature = layers[i];
         this.setCurrentLocationStyle();
-
         map.closePopup();
         layers[i]._popup.setContent(this.activePopup(layers[i].feature));
+        break;
       }
-    }
-
-    // if it's not loaded with the first set of tiles, try again
-    // It's not perfect, still doesn't look for things that aren't loaded in the first pass
-    // There needs to be a way to guarentee that all objects are loaded the first go around (but doesn't that defeat the purpose of vector tiles?)
-
-    // could we include the coords in the spatial_unit model so I can use them as context in the view?
-    // No because the views are stripped of javascript....
-    if (!found && count <= 5) {
-      var parent = this;
-      count += 1;
-      window.setTimeout(function() {
-        parent.setCurrentLocationBounds(count);
-      }, 600);
     }
   },
 

@@ -7,5 +7,9 @@ window.addEventListener('hashchange', function() {
 window.addEventListener('load', function() {
     sr.router();
 });
+map.on('endtileload', function() {
+    rm.setCurrentLocation();
+});
+
 SMap(map);
 var hash = new L.Hash(map);

@@ -59,6 +59,7 @@ L.TileLayer.Ajax = L.TileLayer.extend({
         if (this._ticker < this._requests.length) {
             this._ticker++;
         } else {
+            map.fire('endtileload');
             $('#messages #loading').addClass('hidden');
         }
     },

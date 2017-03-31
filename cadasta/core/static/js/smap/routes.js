@@ -32,9 +32,9 @@ var CreateRoutes = function(){
       rm.resetCurrentLocationStyle();
       rm.updateSidebar('overview');
       
-      if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
-        map.fitBounds(options.projectExtent);
-      }
+      // if (options.projectExtent && !window.location.hash.includes('/?coords=')) {
+      //   map.fitBounds(options.projectExtent);
+      // }
   });
 
 
