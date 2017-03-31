@@ -12,6 +12,7 @@ from .. import messages as error_messages
 
 
 class PartyRelationshipDetail(core_mixins.LoginPermissionRequiredMixin,
+                              core_mixins.SpatialUnitCoords,
                               JsonAttrsMixin,
                               mixins.PartyRelationshipObjectMixin,
                               organization_mixins.ProjectAdminCheckMixin,
@@ -26,6 +27,7 @@ class PartyRelationshipDetail(core_mixins.LoginPermissionRequiredMixin,
 
 class PartyRelationshipEdit(core_mixins.LoginPermissionRequiredMixin,
                             core_mixins.FormErrorMixin,
+                            core_mixins.SpatialUnitCoords,
                             mixins.PartyRelationshipObjectMixin,
                             organization_mixins.ProjectAdminCheckMixin,
                             generic.UpdateView):

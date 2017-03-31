@@ -166,6 +166,7 @@ var CreateRoutes = function(){
     function() {
       rm.displayEditDetailPanel();
     }, function(){
+      rm.setCurrentRelationshipUrl();
       rm.setCurrentLocation($("#current-location").attr('href'));
       rm.formSubmission(this.el, rm.getCurrentRelationshipUrl());
   });

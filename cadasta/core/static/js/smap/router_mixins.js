@@ -96,26 +96,34 @@ var RouterMixins = {
     return state.el[el];
   },
 
-  setCurrentLocation: function(url=null) {
-    window_hash = window.location.hash;
-
-    this.setCurrentLocationUrl(url);
-    this.setCurrentLocationFeature();
-  },
-
   setCurrentRelationshipUrl: function() {
-    if (state.current_relationship.url !== window.location.hash) {
-      state.current_relationship.url = window.location.hash;
+    window_hash = window.location.hash;
+    if (window_hash.includes('records/relationship') && !window_hash.include(state.current_relationship)) {
+      if (window_hash.includes('/edit')) {
+        window_hash = window_hash.substr(0, window_hash.indexOf('/edit'));
+      }
+      state.current_relationship.url = window_hash;
     }
   },
 
+  getCurrentRelationshipUrl: function() {
+    return state.current_relationship.url;
+  },
+
+  setCurrentLocation: function(url=null) {
+    this.setCurrentLocationUrl(url);
+    this.setCurrentLocationFeature(url);
+  },
+
+
   setCurrentLocationUrl: function(url) {
+    window_hash = window.location.hash;
     // in relationship_detail, it pulls the current_location from the location link.
     if (url) {
       if (!state.current_location.url) {
         state.current_location.url = url;
       }
-    } else if (!window_hash.includes(state.current_location.url)) {
+    } else if (window_hash.includes('records/location') && !window_hash.includes(state.current_location.url)) {
       // catches both /?tab and /?coords
       state.current_location.url = window_hash;
 
@@ -133,30 +141,29 @@ var RouterMixins = {
     return state.current_location.url;
   },
 
-  getCurrentRelationshipUrl: function() {
-    return state.current_relationship.url;
+  setCurrentLocationFeature: function(url) {
+    var layers = state.geojsonlayer.geojsonLayer._layers;
+    var found = false;
+    url = state.current_location.url || url;
+    console.log(url);
+
+    if (state.first_load) {
+      map.fitBounds(state.coords);
+      state.first_load = false;
+    }
+
+    for (var i in layers) {
+      if (url.includes(layers[i].feature.id)) {
+        found = true;
+        this.resetCurrentLocationStyle();
+        state.current_location.feature = layers[i];
+        this.setCurrentLocationStyle();
+        map.closePopup();
+        layers[i]._popup.setContent(this.activePopup(layers[i].feature));
+        break;
+      }
+    }
   },
-
-  // centerOnCurrentLocation: function() {
-    
-  //   // if (state.current_location.bounds) {
-  //   //   var bounds;
-  //   //   var location = state.current_location.bounds;
-  //   //   if (typeof(location.getBounds) === 'function'){
-  //   //     console.log(location);
-  //   //     bounds = location.getBounds();
-  //   //     console.log(bounds);
-  //   //   } else {
-  //   //     // If the spatial unit is a marker
-  //   //     var latLngs = [location.getLatLng()];
-  //   //     bounds = L.latLngBounds(latLngs);
-  //   //   }
-
-  //     // if (bounds.isValid()){
-  //     //   map.fitBounds(bounds);
-  //     // }
-  //   // }
-  // },
 
   setCurrentLocationCoords: function(coords) {
     if (!state.coords) {
@@ -184,28 +191,26 @@ var RouterMixins = {
     }
   },
 
-  setCurrentLocationFeature: function() {
-    var layers = state.geojsonlayer.geojsonLayer._layers;
-    var url = state.current_location.url || window.location.hash;
-    var found = false;
+  // centerOnCurrentLocation: function() {
+    
+  //   // if (state.current_location.bounds) {
+  //   //   var bounds;
+  //   //   var location = state.current_location.bounds;
+  //   //   if (typeof(location.getBounds) === 'function'){
+  //   //     console.log(location);
+  //   //     bounds = location.getBounds();
+  //   //     console.log(bounds);
+  //   //   } else {
+  //   //     // If the spatial unit is a marker
+  //   //     var latLngs = [location.getLatLng()];
+  //   //     bounds = L.latLngBounds(latLngs);
+  //   //   }
 
-    if (state.first_load) {
-      map.fitBounds(state.coords);
-      state.first_load = false;
-    }
-
-    for (var i in layers) {
-      if (url.includes(layers[i].feature.id)) {
-        found = true;
-        this.resetCurrentLocationStyle();
-        state.current_location.feature = layers[i];
-        this.setCurrentLocationStyle();
-        map.closePopup();
-        layers[i]._popup.setContent(this.activePopup(layers[i].feature));
-        break;
-      }
-    }
-  },
+  //     // if (bounds.isValid()){
+  //     //   map.fitBounds(bounds);
+  //     // }
+  //   // }
+  // },
 
   activateTab: function(tab) {
     // For the location details page. Tabs are built using bootstrap
