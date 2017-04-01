@@ -16,11 +16,11 @@ from django.forms.utils import ErrorDict
 from django.utils.translation import ugettext as _
 from leaflet.forms.widgets import LeafletWidget
 from questionnaires.models import Questionnaire
+from resources.serializers import ResourceDownloadSerializer
+from party import serializers as party_serializers
 from tutelary.models import check_perms
 
 from .choices import ADMIN_CHOICES, ROLE_CHOICES
-from .download.resources import ResourceExporter
-from .download.shape import ShapeExporter
 from .download.xls import XLSExporter
 from organization import fields as org_fields
 from .models import Organization, OrganizationRole, Project, ProjectRole
@@ -501,6 +501,43 @@ class DownloadForm(forms.Form):
                 myzip.close()
 
         return path, mime
+
+    def _get_shp(self):
+        return {
+            'project_name': self.project.name,
+            'locations': [
+                (id, geometry.ewkt if geometry else None) for (id, geometry)
+                in self.project.spatial_units.values_list('id', 'geometry')
+            ],
+            'relationships': [
+                party_serializers.TenureRelationshipDownloadSerializer(tr).data
+                for tr in self.project.tenure_relationships.all()
+            ],
+            'parties': [
+                party_serializers.PartySerializer(tr).data
+                for tr in self.project.parties.all()
+            ],
+        }
+
+    def _get_res(self):
+        return [
+            ResourceDownloadSerializer(r).data
+            for r in self.project.resources.all()
+        ]
+
+    def get_payload(self):
+        t = round(time.time() * 1000)
+
+        file_name = '{}-{}-{}'.format(self.project.id, self.user.id, t)
+        media_type = self.cleaned_data['type']
+        payload = {}
+        if media_type in ('shp', 'all'):
+            payload['shp'] = self._get_shp()
+        if media_type in ('xls', 'all'):
+            payload['xls'] = self._get_xls()
+        if media_type in ('res', 'all'):
+            payload['res'] = self._get_res()
+        return payload
 
 
 class SelectImportForm(forms.Form):
