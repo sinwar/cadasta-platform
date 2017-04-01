@@ -514,8 +514,8 @@ class DownloadForm(forms.Form):
                 for tr in self.project.tenure_relationships.all()
             ],
             'parties': [
-                party_serializers.PartySerializer(tr).data
-                for tr in self.project.parties.all()
+                party_serializers.PartySerializer(party).data
+                for party in self.project.parties.all()
             ],
         }
 

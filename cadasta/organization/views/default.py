@@ -15,7 +15,6 @@ from django.core.files.storage import DefaultStorage, FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from questionnaires.exceptions import InvalidXLSForm
 from questionnaires.models import Questionnaire
@@ -691,14 +690,6 @@ class ProjectDataDownload(mixins.ProjectMixin,
         kwargs['project'] = self.object
         kwargs['user'] = self.request.user
         return kwargs
-
-    # TODO: Mv to api endpoint?
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        if form.is_valid():
-            return JsonResponse(form.get_payload())
-        return JsonResponse(form.errors.as_json(), status_code=400)
 
 
 DATA_IMPORT_FORMS = [('select_file', forms.SelectImportForm),
